@@ -41,7 +41,7 @@
                 {% block header_title %}
                 <h1>
                     <a href="{{ home_url }}">{{ config.extra.author | default(value=config.title) }}</a>
-                    {% if config.extra.site_name %}<span class="breadcrumb-sep">›</span> <a href="{{ get_url(path='@/_index.md') }}">{{ config.extra.site_name }}</a>{% endif %}
+                    {% if config.extra.site_name %}<span class="breadcrumb-sep">›</span> <a href="{{ config.base_url }}">{{ config.extra.site_name }}</a>{% endif %}
                 </h1>
                 {% endblock header_title %}
                 {% if config.extra.tagline %}

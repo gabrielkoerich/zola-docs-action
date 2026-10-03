@@ -12,7 +12,7 @@
 {% if day > today and config.mode != "serve" %}
 {# Scheduled page, a build on or after its date renders it #}
 <h1>Not found</h1>
-<p><a href="{{ get_url(path='@/_index.md') }}">← Back to home</a></p>
+<p><a href="{{ config.base_url }}">← Back to home</a></p>
 {% else %}
 <article>
     {% if page.date %}
