@@ -1,0 +1,8 @@
+name = "zola-docs"
+description = "Shared layout for gabrielkoerich sites, bundled with zola-docs-action"
+license = "MIT"
+min_version = "0.18.0"
+
+[author]
+name = "Gabriel Koerich"
+homepage = "https://gabrielkoerich.com"

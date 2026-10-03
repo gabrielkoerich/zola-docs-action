@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-example:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        zola-version: ["0.18.0", "0.19.2"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the example site with this action
+        id: docs
+        uses: ./
+        with:
+          path: example
+          zola-version: ${{ matrix.zola-version }}
+          upload: "false"
+
+      - name: Check the output
+        env:
+          OUT: ${{ steps.docs.outputs.output-dir }}
+        run: |
+          test -f "$OUT/index.html"
+          test -f "$OUT/guide/index.html"
+          grep -q 'zola-docs.css?h=' "$OUT/index.html"
+          grep -q 'Gabriel Koerich' "$OUT/index.html"
+          # A page dated 2099 must stay out of lists and the sitemap, bash -e ignores a negated command so test explicitly
+          if grep -q 'Scheduled page' "$OUT/index.html"; then echo "scheduled page is listed"; exit 1; fi
+          if grep -q 'scheduled' "$OUT/sitemap.xml"; then echo "scheduled page is in the sitemap"; exit 1; fi
+          grep -q 'noindex' "$OUT/scheduled/index.html"

@@ -1,0 +1,557 @@
+/* zola-docs theme, shared by every gabrielkoerich site, edit here and every site picks it up on its next build */
+
+/* CSS Variables for dark theme */
+:root {
+    --bg-color: #0a1424;
+    --bg-secondary: #111d31;
+    --heading-color: #eef3f9;
+    --body-color: #cdd5e0;
+    --text-color: #c3cddb;
+    --text-secondary: #8d9bb1;
+    --accent-color: #6cb2ff;
+    --border-color: #22324b;
+    --font-main: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-serif: Charter, 'Bitstream Charter', 'Charis SIL', Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+/* Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base */
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-main);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Atmospheric backdrop: faint dot-grid + top accent glow */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(800px 420px at 80% -8%, rgba(108, 178, 255, 0.10), transparent 60%),
+        radial-gradient(rgba(139, 148, 158, 0.06) 1px, transparent 1px);
+    background-size: auto, 32px 32px;
+}
+
+/* Container - Medium-inspired width */
+#container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin: 2rem 0 1rem;
+    color: var(--heading-color);
+}
+
+h1 {
+    font-size: 1.75rem;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 1.35rem;
+    margin-top: 3rem;
+}
+
+.section-heading-inline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+}
+
+.section-heading-inline h2 {
+    border-bottom: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.section-heading-link {
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    white-space: nowrap;
+}
+
+.section-heading-link:hover {
+    color: var(--accent-color);
+}
+
+h3 {
+    font-size: 1.15rem;
+}
+
+p {
+    margin: 1rem 0;
+}
+
+/* Links */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    gap: 2rem;
+}
+
+.header-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    line-height: 1.1;
+}
+
+header h1 a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+header h1 a:hover {
+    opacity: 0.7;
+}
+
+.breadcrumb-sep {
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin: 0 0.15rem;
+}
+
+.header-tagline {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.header-nav {
+    display: flex;
+    gap: 1.1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.header-nav-link {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    font-size: 0.9rem;
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    transition: color 0.15s;
+}
+
+.header-nav-link:hover {
+    color: var(--accent-color) !important;
+    opacity: 1;
+}
+
+.header-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary) !important;
+}
+
+.header-nav-icon:hover {
+    color: var(--accent-color) !important;
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .header-nav {
+        justify-content: flex-start;
+        gap: 0.9rem;
+    }
+}
+
+
+/* Lists */
+ul, ol {
+    margin: 1rem 0 1rem 1.5rem;
+}
+
+li {
+    margin: 0.5rem 0;
+}
+
+/* Posts list */
+#posts {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+}
+
+#posts li {
+    margin: 0;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+#posts li:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+#posts h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+#posts h3 a {
+    color: var(--heading-color);
+}
+
+/* Home list sits under a section heading, so its titles stay smaller than it */
+.section-heading-inline + #posts h3 {
+    font-size: 1.125rem;
+}
+
+.section-heading-inline + #posts li:not(:first-child) {
+    padding: 1rem 0;
+}
+
+#posts h3 a:hover {
+    color: var(--accent-color);
+}
+
+.post-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+/* Tags */
+.tags {
+    margin: 1rem 0;
+}
+
+.tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    margin-right: 0.5rem;
+}
+
+#posts .tags {
+    margin: 0.6rem 0 0;
+}
+
+a.tag:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+    opacity: 1;
+}
+
+/* Content - Serif font for articles */
+.content {
+    margin: 2.5rem 0;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    font-family: var(--font-serif);
+    color: var(--body-color);
+}
+
+.content h2 {
+    margin-top: 3.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+}
+
+.content h3 {
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.375rem;
+}
+
+.content h4 {
+    margin-top: 2.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+}
+
+.content p {
+    margin: 1.5rem 0;
+    font-weight: 400;
+}
+
+.content strong {
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+.content pre {
+    background: var(--bg-secondary);
+    padding: 1.25rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    margin: 2rem 0;
+    line-height: 1.6;
+}
+
+.content code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-secondary);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+}
+
+.content pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+.content blockquote {
+    border-left: 4px solid var(--accent-color);
+    margin: 2rem 0;
+    padding-left: 1.5rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 2rem 0;
+}
+
+.content ul, .content ol {
+    margin: 1.75rem 0;
+    padding-left: 2rem;
+}
+
+.content li {
+    margin: 0.75rem 0;
+}
+
+.content hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1rem 0;
+}
+
+/* An all-italic paragraph is a caption or the "Originally published" footer */
+.content p > em:only-child {
+    display: block;
+    font-size: 0.95rem;
+    font-family: var(--font-main);
+    font-style: normal;
+    color: var(--text-secondary);
+}
+
+/* Article header */
+article {
+    margin-top: 1rem;
+}
+
+article .post-date {
+    font-size: 1rem;
+    margin: 0 0 1rem;
+}
+
+article h1 {
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    margin-bottom: 1.25rem;
+}
+
+/* Post navigation */
+.post-nav {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.post-nav a {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.post-nav a:hover {
+    color: var(--accent-color);
+}
+
+/* Footer */
+#page-footer {
+    margin-top: 3rem;
+    padding-top: 0;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: right;
+}
+
+#page-footer a {
+    color: var(--text-secondary);
+    margin-left: 1rem;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+#page-footer a:hover {
+    color: var(--accent-color);
+}
+
+#page-footer svg {
+    vertical-align: middle;
+}
+
+#page-footer .footer-extra {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+}
+
+#page-footer .footer-extra a {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+#page-footer .footer-extra a:hover {
+    color: var(--accent-color);
+}
+
+/* Print */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    #container {
+        padding: 2rem 1.5rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Selection */
+::selection {
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+
+/* Only zola serve renders drafts and scheduled posts, this marks them */
+.post-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    padding: 0.05rem 0.4rem;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+}
+
+/* Tables, used by docs pages */
+.content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+}
+
+.content th,
+.content td {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.content th {
+    color: var(--heading-color);
+    font-weight: 700;
+}

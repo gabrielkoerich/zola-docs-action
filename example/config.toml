@@ -1,0 +1,23 @@
+base_url = "https://example.gabrielkoerich.com"
+title = "Example"
+description = "Site used by CI to check the zola-docs theme builds"
+theme = "zola-docs"
+compile_sass = true
+minify_html = true
+taxonomies = [{ name = "tags" }]
+
+[markdown]
+external_links_target_blank = true
+
+[extra]
+author = "Gabriel Koerich"
+site_name = "Example"
+home_url = "https://gabrielkoerich.com"
+tagline = "Senior Engineer · AI Workflows · Solana / DeFi"
+github = "https://github.com/gabrielkoerich"
+linkedin = "https://linkedin.com/in/gabrielkoerich"
+email = "gabriel@gabrielkoerich.com"
+nav = [
+    { name = "Posts", url = "https://gabrielkoerich.com/posts/" },
+    { name = "Guide", url = "@/guide.md" },
+]

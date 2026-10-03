@@ -1,0 +1,84 @@
+name: Zola docs
+description: Build a Zola site with the shared zola-docs theme and upload it for GitHub Pages
+author: Gabriel Koerich
+
+branding:
+  icon: book-open
+  color: blue
+
+inputs:
+  path:
+    description: Directory of the Zola site, relative to the repository root
+    default: "."
+  zola-version:
+    description: Zola release to build with
+    default: "0.18.0"
+  base-url:
+    description: Override base_url from config.toml
+    default: ""
+  drafts:
+    description: Include draft pages
+    default: "false"
+  upload:
+    description: Upload the output as a GitHub Pages artifact
+    default: "true"
+
+outputs:
+  output-dir:
+    description: Directory holding the built site
+    value: ${{ steps.build.outputs.output-dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install the zola-docs theme
+      shell: bash
+      env:
+        SITE: ${{ inputs.path }}
+        THEME_SRC: ${{ github.action_path }}/theme
+      run: |
+        dest="$SITE/themes/zola-docs"
+        rm -rf "$dest"
+        mkdir -p "$SITE/themes"
+        cp -R "$THEME_SRC" "$dest"
+        if ! grep -Eq '^theme *= *"zola-docs"' "$SITE/config.toml"; then
+          echo "::warning::$SITE/config.toml does not set theme = \"zola-docs\", the theme is installed but unused"
+        fi
+
+    - name: Install Zola
+      shell: bash
+      env:
+        ZOLA_VERSION: ${{ inputs.zola-version }}
+      run: |
+        case "$RUNNER_OS-$RUNNER_ARCH" in
+          Linux-X64)  target="x86_64-unknown-linux-gnu" ;;
+          Linux-ARM64) target="aarch64-unknown-linux-gnu" ;;
+          macOS-ARM64) target="aarch64-apple-darwin" ;;
+          macOS-X64)  target="x86_64-apple-darwin" ;;
+          *) echo "::error::No Zola build for $RUNNER_OS-$RUNNER_ARCH"; exit 1 ;;
+        esac
+        bin="$RUNNER_TEMP/zola-bin"
+        mkdir -p "$bin"
+        curl -sSfL "https://github.com/getzola/zola/releases/download/v${ZOLA_VERSION}/zola-v${ZOLA_VERSION}-${target}.tar.gz" | tar -xzf - -C "$bin"
+        echo "$bin" >> "$GITHUB_PATH"
+
+    - name: Build
+      id: build
+      shell: bash
+      env:
+        SITE: ${{ inputs.path }}
+        BASE_URL: ${{ inputs.base-url }}
+        DRAFTS: ${{ inputs.drafts }}
+      run: |
+        cd "$SITE"
+        args=()
+        [ -n "$BASE_URL" ] && args+=(--base-url "$BASE_URL")
+        [ "$DRAFTS" = "true" ] && args+=(--drafts)
+        zola build "${args[@]}"
+        echo "output-dir=$SITE/public" >> "$GITHUB_OUTPUT"
+
+    - name: Upload Pages artifact
+      if: inputs.upload == 'true'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ${{ steps.build.outputs.output-dir }}

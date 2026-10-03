@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+{% set today = now() | date(format="%Y%m%d") | int %}
+{% set_global day = 0 %}{% if page.date %}{% set_global day = page.date | date(format="%Y%m%d") | int %}{% endif %}
+{% if day > today and config.mode != "serve" %}<meta name="robots" content="noindex">{% endif %}
+{% endblock head_extra %}
+
+{% block content %}
+{% set today = now() | date(format="%Y%m%d") | int %}
+{% set_global day = 0 %}{% if page.date %}{% set_global day = page.date | date(format="%Y%m%d") | int %}{% endif %}
+{% if day > today and config.mode != "serve" %}
+{# Scheduled page, a build on or after its date renders it #}
+<h1>Not found</h1>
+<p><a href="{{ get_url(path='@/_index.md') }}">← Back to home</a></p>
+{% else %}
+<article>
+    {% if page.date %}
+    <span class="post-date">{{page.date | date(format="%B %d, %Y")}}{% if page.draft %} <span class="post-badge">Draft</span>{% elif day > today %} <span class="post-badge">Scheduled</span>{% endif %}</span>
+    {% endif %}
+
+    <h1>{{page.title}}</h1>
+
+    {% if page.taxonomies.tags %}
+    <div class="tags">
+        {% for tag in page.taxonomies.tags %}<a class="tag" href="{{ get_taxonomy_url(kind="tags", name=tag) }}">{{tag}}</a>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="content">
+        {{page.content | safe}}
+    </div>
+</article>
+
+{# Decide older and newer by date, the meaning of lower and higher changed between Zola versions #}
+{% set_global older = false %}{% set_global newer = false %}
+{% for neighbour in [page.lower, page.higher] %}
+    {% if neighbour %}
+        {% if neighbour.date and page.date %}
+            {% set nday = neighbour.date | date(format="%Y%m%d") | int %}
+            {% if nday < day %}{% set_global older = neighbour %}
+            {% elif nday <= today or config.mode == "serve" %}{% set_global newer = neighbour %}{% endif %}
+        {% elif loop.first %}{% set_global newer = neighbour %}{% else %}{% set_global older = neighbour %}{% endif %}
+    {% endif %}
+{% endfor %}
+{% if older or newer %}
+<nav class="post-nav">
+    {% if older %}<a href="{{older.permalink | safe}}" class="prev">← {{older.title}}</a>{% endif %}
+    {% if newer %}<a href="{{newer.permalink | safe}}" class="next">{{newer.title}} →</a>{% endif %}
+</nav>
+{% endif %}
+{% endif %}
+{% endblock content %}
