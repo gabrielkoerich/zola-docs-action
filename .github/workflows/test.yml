@@ -34,3 +34,32 @@ jobs:
           if grep -q 'Scheduled page' "$OUT/index.html"; then echo "scheduled page is listed"; exit 1; fi
           if grep -q 'scheduled' "$OUT/sitemap.xml"; then echo "scheduled page is in the sitemap"; exit 1; fi
           grep -q 'noindex' "$OUT/scheduled/index.html"
+
+  build-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build a site from a README with this action
+        id: docs
+        uses: ./
+        with:
+          readme: example-readme/README.md
+          path: example-readme
+          zola-version: "0.19.2"
+          upload: "false"
+          extra: |
+            author = "Gabriel Koerich"
+            home_url = "https://gabrielkoerich.com"
+
+      - name: Check the output
+        env:
+          OUT: ${{ steps.docs.outputs.output-dir }}
+        run: |
+          test -f "$OUT/index.html"
+          test -f "$OUT/install/index.html"
+          test -f "$OUT/usage/index.html"
+          grep -q 'docs-sidebar' "$OUT/install/index.html"
+          grep -q 'Gabriel Koerich' "$OUT/index.html"
+          # The CI badge belongs on GitHub, not on the site
+          if grep -q 'badge.svg' "$OUT/index.html"; then echo "badge leaked into the site"; exit 1; fi

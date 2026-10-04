@@ -58,14 +58,33 @@ jobs:
 | `drafts` | `false` | Include draft pages |
 | `upload` | `true` | Upload the output as a Pages artifact |
 | `build-command` | | Run this in the site directory instead of `zola build`, for sites that generate pages first |
+| `readme` | | Generate the site from this README instead, the intro becomes the landing page and each `## ` section a page |
+| `extra` | | TOML lines for `[extra]` of a README site, such as `author`, `home_url`, `tagline` or `nav` |
 
 Output `output-dir` holds the built site.
 
 The theme uses Tera 1 syntax, so it builds on Zola 0.18 to 0.22. Zola 0.23 moved to Tera 2 and rejects it.
 
+## A site from a README
+
+A repo with only a README gets a docs site with one step, the successor to zola-builder:
+
+```yaml
+      - uses: gabrielkoerich/zola-docs-action@v1
+        with:
+          readme: README.md
+          base-url: https://projects.gabrielkoerich.com/skills
+          extra: |
+            author = "Gabriel Koerich"
+            home_url = "https://gabrielkoerich.com"
+```
+
+The site is generated into `.zola-build`, GitHub badges are dropped and links between sections are rewritten to the new pages.
+
 ## What the theme gives a site
 
 - `base.html` with blocks `title`, `head_extra`, `header_title`, `content`, `before_footer` and `scripts`
+- `docs-index.html` and `docs-page.html`, a docs layout with a sidebar of pages
 - `page.html`, `index.html`, `section.html` and taxonomy pages, any of which the site can override with its own template of the same name
 - Pages dated in the future stay hidden until a build on or after their date, `zola serve` shows them with a label
 - `{{ asset(path="file.pdf") }}` shortcode for cachebusted links to static files

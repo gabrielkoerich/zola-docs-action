@@ -25,6 +25,12 @@ inputs:
   build-command:
     description: Command to run in the site directory instead of zola build, for sites that generate pages first
     default: ""
+  readme:
+    description: Generate the site from this README, one page per ## section, instead of building an existing site
+    default: ""
+  extra:
+    description: TOML lines added to [extra] of a README site, for author, home_url, tagline or nav
+    default: ""
 
 outputs:
   output-dir:
@@ -34,10 +40,28 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Install the zola-docs theme
+    - name: Pick the site directory
+      id: site
       shell: bash
       env:
         SITE: ${{ inputs.path }}
+        README: ${{ inputs.readme }}
+        EXTRA: ${{ inputs.extra }}
+        BASE_URL: ${{ inputs.base-url }}
+        GENERATOR: ${{ github.action_path }}/scripts/readme-site.py
+      run: |
+        if [ -n "$README" ]; then
+          export OUT_DIR="$SITE/.zola-build"
+          python3 "$GENERATOR"
+          echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+        else
+          echo "dir=$SITE" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Install the zola-docs theme
+      shell: bash
+      env:
+        SITE: ${{ steps.site.outputs.dir }}
         THEME_SRC: ${{ github.action_path }}/theme
       run: |
         dest="$SITE/themes/zola-docs"
@@ -69,7 +93,7 @@ runs:
       id: build
       shell: bash
       env:
-        SITE: ${{ inputs.path }}
+        SITE: ${{ steps.site.outputs.dir }}
         BASE_URL: ${{ inputs.base-url }}
         DRAFTS: ${{ inputs.drafts }}
         BUILD_COMMAND: ${{ inputs.build-command }}
