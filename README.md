@@ -57,8 +57,11 @@ jobs:
 | `base-url` | | Override `base_url` |
 | `drafts` | `false` | Include draft pages |
 | `upload` | `true` | Upload the output as a Pages artifact |
+| `build-command` | | Run this in the site directory instead of `zola build`, for sites that generate pages first |
 
 Output `output-dir` holds the built site.
+
+The theme uses Tera 1 syntax, so it builds on Zola 0.18 to 0.22. Zola 0.23 moved to Tera 2 and rejects it.
 
 ## What the theme gives a site
 

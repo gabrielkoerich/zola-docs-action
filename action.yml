@@ -22,6 +22,9 @@ inputs:
   upload:
     description: Upload the output as a GitHub Pages artifact
     default: "true"
+  build-command:
+    description: Command to run in the site directory instead of zola build, for sites that generate pages first
+    default: ""
 
 outputs:
   output-dir:
@@ -69,12 +72,17 @@ runs:
         SITE: ${{ inputs.path }}
         BASE_URL: ${{ inputs.base-url }}
         DRAFTS: ${{ inputs.drafts }}
+        BUILD_COMMAND: ${{ inputs.build-command }}
       run: |
         cd "$SITE"
-        args=()
-        [ -n "$BASE_URL" ] && args+=(--base-url "$BASE_URL")
-        [ "$DRAFTS" = "true" ] && args+=(--drafts)
-        zola build "${args[@]}"
+        if [ -n "$BUILD_COMMAND" ]; then
+          bash -c "$BUILD_COMMAND"
+        else
+          args=()
+          [ -n "$BASE_URL" ] && args+=(--base-url "$BASE_URL")
+          [ "$DRAFTS" = "true" ] && args+=(--drafts)
+          zola build "${args[@]}"
+        fi
         echo "output-dir=$SITE/public" >> "$GITHUB_OUTPUT"
 
     - name: Upload Pages artifact
