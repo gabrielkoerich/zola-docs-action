@@ -48,6 +48,7 @@ runs:
         README: ${{ inputs.readme }}
         EXTRA: ${{ inputs.extra }}
         BASE_URL: ${{ inputs.base-url }}
+        ZOLA_VERSION: ${{ inputs.zola-version }}
         GENERATOR: ${{ github.action_path }}/scripts/readme-site.py
       run: |
         if [ -n "$README" ]; then

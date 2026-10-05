@@ -3,7 +3,7 @@
 
 The intro above the first `## ` becomes the landing page and each `## ` section becomes a page,
 ported from zola-builder so README-only repos share the theme with every other site.
-Env: README, OUT_DIR, BASE_URL, EXTRA (TOML lines for [extra]), GITHUB_REPOSITORY.
+Env: README, OUT_DIR, BASE_URL, EXTRA (TOML lines for [extra]), GITHUB_REPOSITORY, ZOLA_VERSION.
 """
 import os
 import re
@@ -165,12 +165,21 @@ def main():
     }
     extra_lines = [f"{k} = {v}" for k, v in defaults.items() if v and k not in given]
     description = escape_toml(re.sub(r"\s+", " ", data["intro"]).strip()[:200])
+    # Class based highlighting emits the z- classes the theme colours, the keys changed in Zola 0.22
+    major, minor = (int(x) for x in (os.environ.get("ZOLA_VERSION") or "0.18.0").split(".")[:2])
+    if (major, minor) >= (0, 22):
+        highlighting = '[markdown.highlighting]\nstyle = "class"\ntheme = "github-dark"'
+    else:
+        highlighting = 'highlight_code = true\nhighlight_theme = "css"'
     (out / "config.toml").write_text(f"""base_url = "{os.environ.get('BASE_URL') or '/'}"
 title = "{escape_toml(title)}"
 description = "{description}"
 theme = "zola-docs"
 compile_sass = true
 minify_html = true
+
+[markdown]
+{highlighting}
 
 [extra]
 {chr(10).join(extra_lines)}
