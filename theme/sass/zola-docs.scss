@@ -702,3 +702,82 @@ article h1 {
         overflow-wrap: anywhere;
     }
 }
+
+/* Code blocks, darker than the page with a syntax palette for the z- classes every Zola highlighter emits */
+:root {
+    --code-bg: #060c17;
+    --syntax-comment: #6b7a90;
+    --syntax-string: #9ece6a;
+    --syntax-constant: #ff9e64;
+    --syntax-keyword: #bb9af7;
+    --syntax-entity: #7aa2f7;
+    --syntax-support: #7dcfff;
+    --syntax-variable: #c0caf5;
+}
+
+.content pre,
+.docs-content pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.1rem 1.35rem;
+    color: var(--body-color, var(--text-color));
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.content pre::-webkit-scrollbar,
+.docs-content pre::-webkit-scrollbar {
+    height: 6px;
+}
+
+.content pre::-webkit-scrollbar-thumb,
+.docs-content pre::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.content pre::-webkit-scrollbar-track,
+.docs-content pre::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.content pre .z-comment,
+.docs-content pre .z-comment {
+    color: var(--syntax-comment);
+    font-style: italic;
+}
+
+.content pre .z-string,
+.docs-content pre .z-string {
+    color: var(--syntax-string);
+}
+
+.content pre .z-constant,
+.docs-content pre .z-constant {
+    color: var(--syntax-constant);
+}
+
+.content pre .z-keyword,
+.content pre .z-storage,
+.docs-content pre .z-keyword,
+.docs-content pre .z-storage {
+    color: var(--syntax-keyword);
+}
+
+.content pre .z-entity,
+.content pre .z-function,
+.docs-content pre .z-entity,
+.docs-content pre .z-function {
+    color: var(--syntax-entity);
+}
+
+.content pre .z-support,
+.docs-content pre .z-support {
+    color: var(--syntax-support);
+}
+
+.content pre .z-variable,
+.docs-content pre .z-variable {
+    color: var(--syntax-variable);
+}
