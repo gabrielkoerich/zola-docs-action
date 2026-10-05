@@ -781,3 +781,14 @@ article h1 {
 .docs-content pre .z-variable {
     color: var(--syntax-variable);
 }
+
+/* Zola 0.18 tags a command as both variable and function, show it as a function */
+.content pre .z-variable.z-function,
+.docs-content pre .z-variable.z-function {
+    color: var(--syntax-entity);
+}
+
+.content pre .z-variable.z-parameter,
+.docs-content pre .z-variable.z-parameter {
+    color: var(--syntax-constant);
+}
