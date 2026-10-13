@@ -6,3 +6,19 @@ min_version = "0.18.0"
 [author]
 name = "Gabriel Koerich"
 homepage = "https://gabrielkoerich.com"
+
+# Defaults for every site, so the header matches gabrielkoerich.com, a site's own config wins
+[extra]
+author = "Gabriel Koerich"
+home_url = "https://gabrielkoerich.com"
+tagline = "Senior Engineer · AI Workflows · Solana / DeFi"
+site_nav = [
+    { name = "About", url = "https://gabrielkoerich.com/about/" },
+    { name = "Posts", url = "https://gabrielkoerich.com/posts/" },
+    { name = "Consulting", url = "https://gabrielkoerich.com/consulting/" },
+    { name = "Projects", url = "https://projects.gabrielkoerich.com/" },
+]
+profile_github = "https://github.com/gabrielkoerich"
+x = "https://x.com/gabrielmkoerich"
+linkedin = "https://linkedin.com/in/gabrielkoerich"
+email = "gabriel@gabrielkoerich.com"

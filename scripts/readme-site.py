@@ -153,7 +153,7 @@ def main():
     # Badges are for GitHub, the site has its own header
     data["intro"] = "\n".join(l for l in data["intro"].splitlines() if not l.lstrip().startswith("[![")).strip()
     repo = os.environ.get("GITHUB_REPOSITORY", "")
-    owner, name = (repo.split("/", 1) + [""])[:2] if "/" in repo else ("", readme.parent.name)
+    name = repo.split("/", 1)[1] if "/" in repo else readme.parent.name
     title = data["title"] or name
 
     if out.exists():
@@ -165,7 +165,6 @@ def main():
     given = toml_keys(extra)
     defaults = {
         "site_name": f'"{escape_toml(title)}"',
-        "author": f'"{escape_toml(owner or title)}"',
         "github": f'"https://github.com/{repo}"' if repo else None,
         "nav": '[{ name = "Docs", url = "@/_index.md" }]',
     }

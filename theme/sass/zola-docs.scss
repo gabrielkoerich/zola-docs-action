@@ -209,8 +209,33 @@ header h1 a:hover {
     }
     .header-nav {
         justify-content: flex-start;
-        gap: 0.9rem;
+        gap: 0.65rem;
     }
+    .header-tagline {
+        font-size: 0.7rem;
+    }
+}
+
+/* A project's own links, under the header every site shares */
+.project-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: -1.5rem 0 2.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.project-nav-link {
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+
+.project-nav-link:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+    opacity: 1;
 }
 
 
@@ -533,25 +558,82 @@ article h1 {
     vertical-align: middle;
 }
 
-/* Tables, used by docs pages */
+/* Links inside running text need an underline, the accent alone is too close to the body color */
+.content :is(p, li, td, blockquote) a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--accent-color) 45%, transparent);
+}
+
+.content :is(p, li, td, blockquote) a:hover {
+    opacity: 1;
+    text-decoration-color: var(--accent-color);
+}
+
+/* Tables, sans and smaller than the body so they read as reference */
 .content table {
-    width: 100%;
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
     border-collapse: collapse;
     margin: 2rem 0;
     font-family: var(--font-main);
     font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 .content th,
 .content td {
     text-align: left;
-    padding: 0.6rem 0.75rem;
+    vertical-align: top;
+    padding: 0.65rem 1rem 0.65rem 0;
     border-bottom: 1px solid var(--border-color);
 }
 
 .content th {
     color: var(--heading-color);
     font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* The first column names the row, keep it whole */
+.content td:first-child {
+    white-space: nowrap;
+    color: var(--heading-color);
+    font-weight: 600;
+}
+
+/* A page title followed by text sits as close as the Posts intro */
+h1 + .content {
+    margin-top: 1.25rem;
+}
+
+/* Heading anchors from insert_anchor_links, shown on hover */
+.zola-anchor {
+    color: var(--text-secondary);
+    opacity: 0;
+    text-decoration: none;
+    margin-left: 0.25rem;
+    transition: opacity 0.15s;
+}
+
+.content :is(h2, h3, h4):hover .zola-anchor,
+.zola-anchor:focus {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .zola-anchor {
+        opacity: 0.5;
+    }
+}
+
+.read-time {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    color: var(--text-secondary);
 }
 
 /* Docs layout, a sidebar of pages next to the content, used by docs-page.html */
@@ -611,81 +693,22 @@ article h1 {
     min-width: 0;
 }
 
+/* The article sits beside the sidebar, the margin .content adds would push it below the first link */
+.docs-content.content {
+    margin: 0;
+}
+
 .docs-content h1:first-child {
     margin-top: 0;
 }
 
-.docs-content pre {
-    background: var(--bg-secondary);
-    padding: 1.25rem;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    line-height: 1.6;
-    margin: 1.5rem 0;
-}
-
 /* Inline code keeps names like keychain-access-groups on one line */
 .docs-content code {
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-    background: var(--bg-secondary);
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
     white-space: nowrap;
 }
 
 .docs-content pre code {
-    background: none;
-    padding: 0;
-    font-size: inherit;
     white-space: pre;
-}
-
-/* A wide table scrolls inside the column instead of spilling out of the layout */
-.docs-content table {
-    display: block;
-    width: max-content;
-    max-width: 100%;
-    overflow-x: auto;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
-    font-size: 0.95rem;
-}
-
-.docs-content th,
-.docs-content td {
-    text-align: left;
-    vertical-align: top;
-    padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* The first column holds names like solana-security-audit, which would otherwise break at every hyphen */
-.docs-content td:first-child {
-    white-space: nowrap;
-}
-
-.docs-content th {
-    color: var(--heading-color);
-}
-
-.docs-content blockquote {
-    border-left: 4px solid var(--accent-color);
-    margin: 1.5rem 0;
-    padding-left: 1.25rem;
-    color: var(--text-secondary);
-}
-
-.docs-content img {
-    max-width: 100%;
-    height: auto;
-}
-
-.docs-intro {
-    color: var(--text-color);
-    font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {
