@@ -557,16 +557,17 @@ article h1 {
 /* Docs layout, a sidebar of pages next to the content, used by docs-page.html */
 
 .docs-layout {
+    --sidebar-width: 180px;
     display: grid;
-    grid-template-columns: 160px 1fr;
+    grid-template-columns: var(--sidebar-width) 1fr;
     gap: 2rem;
     align-items: start;
 }
 
 /* On a wide screen the sidebar hangs in the left margin, so the header and text stay where every other page has them */
-@media (min-width: 1240px) {
+@media (min-width: 1280px) {
     .docs-layout {
-        margin-left: calc(-160px - 2rem);
+        margin-left: calc(-1 * var(--sidebar-width) - 2rem);
     }
 }
 
@@ -587,8 +588,8 @@ article h1 {
 
 .docs-sidebar li a {
     display: block;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
     border-radius: 4px;
     transition: color 0.2s, background 0.2s;
