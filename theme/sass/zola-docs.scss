@@ -26,6 +26,8 @@
 /* Base */
 html {
     font-size: 16px;
+    /* A short page without a scrollbar would otherwise sit a few pixels off from a long one */
+    scrollbar-gutter: stable;
 }
 
 body {
@@ -554,16 +556,18 @@ article h1 {
 
 /* Docs layout, a sidebar of pages next to the content, used by docs-page.html */
 
-/* The sidebar takes width from the text, so a page with one gets a wider container */
-#container:has(.docs-layout) {
-    max-width: 1160px;
-}
-
 .docs-layout {
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 3rem;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
     align-items: start;
+}
+
+/* On a wide screen the sidebar hangs in the left margin, so the header and text stay where every other page has them */
+@media (min-width: 1240px) {
+    .docs-layout {
+        margin-left: calc(-160px - 2rem);
+    }
 }
 
 .docs-sidebar {
@@ -652,8 +656,14 @@ article h1 {
 .docs-content th,
 .docs-content td {
     text-align: left;
+    vertical-align: top;
     padding: 0.6rem 0.75rem;
     border-bottom: 1px solid var(--border-color);
+}
+
+/* The first column holds names like solana-security-audit, which would otherwise break at every hyphen */
+.docs-content td:first-child {
+    white-space: nowrap;
 }
 
 .docs-content th {
