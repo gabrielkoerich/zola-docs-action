@@ -75,12 +75,18 @@ def escape_toml(s):
     return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ").strip()
 
 
-def short_title(title, max_words=2):
-    """Generate a short sidebar title from the first N words."""
+FILLER = {"a", "an", "and", "as", "at", "by", "for", "from", "in", "it", "of", "on", "or", "the", "to", "with"}
+
+
+def short_title(title, max_words=3):
+    """Generate a short sidebar title from the first N words, without a dangling filler word."""
     words = title.split()
     if len(words) <= max_words:
         return title
-    return " ".join(words[:max_words])
+    words = words[:max_words]
+    while len(words) > 1 and words[-1].lower() in FILLER:
+        words.pop()
+    return " ".join(words)
 
 
 def build_heading_map(readme_data):
