@@ -140,15 +140,33 @@ runs:
       env:
         CF_API_TOKEN: ${{ inputs.cloudflare-token }}
         ZONE_ID: ${{ inputs.cloudflare-zone }}
+        PAGE_URL: ${{ steps.deployment.outputs.page_url }}
       run: |
         if [ -z "$CF_API_TOKEN" ]; then
           echo "::warning::No cloudflare-token was given, the cache was not purged"
           exit 0
         fi
 
-        response=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" \
-          -H "Authorization: Bearer $CF_API_TOKEN" \
-          -H "Content-Type: application/json" \
-          --data '{"purge_everything":true}')
-        echo "$response"
-        echo "$response" | grep -q '"success":true' || echo "::warning::Cloudflare cache purge failed"
+        purge() {
+          echo "Purging $1"
+          response=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$1")
+          echo "$response"
+          echo "$response" | grep -q '"success":true'
+        }
+
+        # Only this site's pages, so a deploy leaves the rest of the zone cached
+        url="${PAGE_URL#*://}"
+        host="${url%%/*}"
+        if [ -n "$host" ] && [ "$url" != "$host/" ] && purge "{\"prefixes\":[\"$url\"]}"; then
+          exit 0
+        fi
+
+        if [ -n "$host" ] && purge "{\"hosts\":[\"$host\"]}"; then
+          exit 0
+        fi
+
+        echo "::warning::Purging $url failed, purging the whole zone"
+        purge '{"purge_everything":true}' || echo "::warning::Cloudflare cache purge failed"
