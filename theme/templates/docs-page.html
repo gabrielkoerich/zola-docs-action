@@ -7,7 +7,8 @@
             {% set parent = get_section(path=page.ancestors | last) %}
             {% for p in parent.pages %}
             <li{% if p.path == page.path %} class="active"{% endif %}>
-                <a href="{{ p.permalink | safe }}">{{ p.extra.short_title | default(value=p.title) }}</a>
+                {# default() escapes its value and output escapes it again, so an & in a title showed as &amp;amp; #}
+                <a href="{{ p.permalink | safe }}">{% if p.extra.short_title %}{{ p.extra.short_title }}{% else %}{{ p.title }}{% endif %}</a>
             </li>
             {% endfor %}
         </ul>
