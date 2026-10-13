@@ -29,24 +29,25 @@ In the deploy workflow:
 
 ```yaml
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: gabrielkoerich/zola-docs-action@v1
-        with:
-          path: docs
-  deploy:
-    needs: build
+  site:
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
     environment:
       name: github-pages
+      url: ${{ steps.docs.outputs.page-url }}
     steps:
-      - uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - id: docs
+        uses: gabrielkoerich/zola-docs-action@v1
+        with:
+          path: docs
+          deploy: "true"
+          cloudflare-token: ${{ secrets.CF_API_TOKEN }}
 ```
+
+Without `deploy`, the action only uploads the artifact, and a later job runs `actions/deploy-pages`.
 
 ## Inputs
 
@@ -60,10 +61,23 @@ jobs:
 | `build-command` | | Run this in the site directory instead of `zola build`, for sites that generate pages first |
 | `readme` | | Generate the site from this README instead, the intro becomes the landing page and each `## ` section a page |
 | `extra` | | TOML lines for `[extra]` of a README site, such as `author`, `home_url`, `tagline` or `nav` |
+| `deploy` | `false` | Deploy to GitHub Pages after the upload |
+| `cloudflare-token` | | Purge the Cloudflare cache after the deploy, from the `CF_API_TOKEN` secret |
+| `cloudflare-zone` | gabrielkoerich.com | Zone to purge |
 
-Output `output-dir` holds the built site.
+Output `output-dir` holds the built site, and `page-url` the deployed URL.
 
 The theme uses Tera 1 syntax, so it builds on Zola 0.18 to 0.22. Zola 0.23 moved to Tera 2 and rejects it.
+
+## Purge the Cloudflare cache
+
+With `deploy` and `cloudflare-token` set, the action purges the whole zone after the deploy. A purge before the deploy lets Cloudflare cache the old site again. With no token the step warns and passes, and a failed purge also only warns.
+
+The action is public, so it cannot hold the token, and a composite action only sees the calling repo's secrets. Set the secret on each repo from passbox:
+
+```bash
+passbox exec --stdin cf/purge-token -- gh secret set CF_API_TOKEN --repo gabrielkoerich/<repo>
+```
 
 ## A site from a README
 

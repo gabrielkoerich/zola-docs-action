@@ -31,11 +31,23 @@ inputs:
   extra:
     description: TOML lines added to [extra] of a README site, for author, home_url, tagline or nav
     default: ""
+  deploy:
+    description: Deploy the uploaded artifact to GitHub Pages, the job needs pages and id-token write and the github-pages environment
+    default: "false"
+  cloudflare-token:
+    description: Cloudflare API token with Cache Purge permission, purges the zone after the deploy
+    default: ""
+  cloudflare-zone:
+    description: Cloudflare zone to purge, the default is gabrielkoerich.com
+    default: "b4f279fbdc18c1d62d60751dcefbc03e"
 
 outputs:
   output-dir:
     description: Directory holding the built site
     value: ${{ steps.build.outputs.output-dir }}
+  page-url:
+    description: URL of the deployed site
+    value: ${{ steps.deployment.outputs.page_url }}
 
 runs:
   using: composite
@@ -115,3 +127,28 @@ runs:
       uses: actions/upload-pages-artifact@v3
       with:
         path: ${{ steps.build.outputs.output-dir }}
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      if: inputs.deploy == 'true' && inputs.upload == 'true'
+      uses: actions/deploy-pages@v4
+
+    # After the deploy, or Cloudflare can fetch and cache the old site again
+    - name: Purge Cloudflare cache
+      if: inputs.deploy == 'true' && inputs.upload == 'true'
+      shell: bash
+      env:
+        CF_API_TOKEN: ${{ inputs.cloudflare-token }}
+        ZONE_ID: ${{ inputs.cloudflare-zone }}
+      run: |
+        if [ -z "$CF_API_TOKEN" ]; then
+          echo "::warning::No cloudflare-token was given, the cache was not purged"
+          exit 0
+        fi
+
+        response=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" \
+          -H "Authorization: Bearer $CF_API_TOKEN" \
+          -H "Content-Type: application/json" \
+          --data '{"purge_everything":true}')
+        echo "$response"
+        echo "$response" | grep -q '"success":true' || echo "::warning::Cloudflare cache purge failed"
