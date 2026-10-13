@@ -60,14 +60,14 @@
         </header>
 
         {# The project's own links, kept apart from the menu every site shares #}
-        {% if config.extra.site_name and (config.extra.nav or config.extra.github) %}
+        {% if config.extra.site_name %}{% if config.extra.nav or config.extra.github %}
         <nav class="project-nav" aria-label="{{ config.extra.site_name }}">
             {% for item in config.extra.nav | default(value=[]) %}
             <a class="project-nav-link" href="{% if item.url is starting_with("@/") %}{{ get_url(path=item.url) }}{% else %}{{ item.url }}{% endif %}">{{ item.name }}</a>
             {% endfor %}
             {% if config.extra.github %}<a class="project-nav-link" href="{{ config.extra.github }}" target="_blank" rel="noopener">GitHub</a>{% endif %}
         </nav>
-        {% endif %}
+        {% endif %}{% endif %}
 
         <main>
             {% block content %}{% endblock content %}
