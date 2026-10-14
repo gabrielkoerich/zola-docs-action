@@ -192,12 +192,24 @@ runs:
 
         # The sitemap holds base_url, which may be http while the site is served over https
         site="https://${PAGE_URL#*://}"
+        pages="$RUNNER_TEMP/warm-pages.txt"
         list="$RUNNER_TEMP/warm-urls.txt"
+        grep -o '<loc>[^<]*</loc>' "$OUTPUT/sitemap.xml" | sed -e 's#</\{0,1\}loc>##g' -e 's#^http://#https://#' > "$pages"
         {
-          grep -o '<loc>[^<]*</loc>' "$OUTPUT/sitemap.xml" | sed -e 's#</\{0,1\}loc>##g' -e 's#^http://#https://#'
+          cat "$pages"
+          # Cloudflare caches the form without the trailing slash on its own, as the redirect to the slash form
+          grep '/$' "$pages" | sed 's#/$##'
           # The stylesheets every page loads, linked with a cachebust query that is part of the cache key
           grep -o 'href="\{0,1\}[^" >]*\.css[^" >]*' "$OUTPUT/index.html" | sed -e 's#^href="\{0,1\}##' -e 's#^http://#https://#'
-        } | grep -F "$site" | sort -u | head -500 > "$list"
+        } | grep -F "${site%/}" | sort -u | head -500 > "$list"
+
+        # Counts each status code, cache status and the Cloudflare data center that answered
+        fetch_all() {
+          xargs -P 8 -n 1 curl -s -o /dev/null --max-time 20 -w '%{http_code} %header{cf-cache-status} %header{cf-ray}\n' < "$list" \
+            | awk '{ n = split($3, ray, "-"); print $1, ($2 == "" ? "-" : $2), ray[n] }' | sort | uniq -c
+        }
 
         echo "Warming $(wc -l < "$list") URLs under $site"
-        xargs -P 8 -n 1 curl -s -o /dev/null --max-time 20 -w '%{http_code}\n' < "$list" | sort | uniq -c
+        fetch_all
+        echo "The same URLs again, a HIT means the data center kept them"
+        fetch_all
