@@ -20,6 +20,7 @@ Why the action and theme are built the way they are, and what each choice costs.
 | The action deploys to Pages and then purges Cloudflare | A purge in the build job, which runs before the new site is live, so Cloudflare caches the old one again | The job needs `pages` and `id-token` permissions and the `github-pages` environment |
 | One action with a `deploy` input | A separate purge action, which every site would add as a second step | `deploy` defaults to off, so an old workflow keeps uploading only |
 | Purge the deployed prefix, then the hostname, then the zone | `purge_everything` on every deploy, which cleared every subdomain | Up to three API calls when a narrower purge is rejected |
+| Warm the site's sitemap after the purge, with Tiered Cache and a one month Edge TTL | Letting visitors fill the cache, where the first view of each page per region waited about 150 to 300ms on GitHub Pages | A few seconds per deploy, and up to 500 requests from the runner |
 | A failed or skipped purge only warns | Failing the deploy, which turns a Cloudflare outage into a failed release | A stale page can stay cached until the next deploy |
 | The token is a secret in each calling repo | A token in this public repo, readable by anyone | Each repo needs the secret set once |
 

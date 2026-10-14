@@ -164,6 +164,8 @@ A release made with `GITHUB_TOKEN` fires no `release` event for other workflows,
 
 With `deploy` and `cloudflare-token` set, the action purges the deployed site after the deploy. A purge before the deploy lets Cloudflare cache the old site again. A site at `projects.gabrielkoerich.com/skills/` purges that prefix, and a site at the root of a hostname purges the hostname, so the rest of the zone stays cached. If Cloudflare rejects that, the action falls back to the hostname and then to the whole zone. With no token the step warns and passes, and a failed purge also only warns.
 
+After a successful purge, the action requests every URL in the built `sitemap.xml` and the stylesheets the home page links, so the first visitor after a deploy gets a cached page. Cloudflare caches per data center, so this only reaches every region with Tiered Cache turned on (Caching → Tiered Cache, free on every plan). Each deploy purges what changed, so the cache rule can keep pages at the edge for a long Edge TTL, such as a month.
+
 The action is public, so it cannot hold the token, and a composite action only sees the calling repo's secrets. Give each repo the secret, a token with only the Cache Purge permission:
 
 ```bash

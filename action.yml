@@ -135,6 +135,7 @@ runs:
 
     # After the deploy, or Cloudflare can fetch and cache the old site again
     - name: Purge Cloudflare cache
+      id: purge
       if: inputs.deploy == 'true' && inputs.upload == 'true'
       shell: bash
       env:
@@ -154,7 +155,12 @@ runs:
             -H "Content-Type: application/json" \
             --data "$1")
           echo "$response"
-          echo "$response" | grep -q '"success":true'
+          if echo "$response" | grep -q '"success":true'; then
+            echo "purged=true" >> "$GITHUB_OUTPUT"
+            return 0
+          fi
+
+          return 1
         }
 
         # Only this site's pages, so a deploy leaves the rest of the zone cached
@@ -170,3 +176,28 @@ runs:
 
         echo "::warning::Purging $url failed, purging the whole zone"
         purge '{"purge_everything":true}' || echo "::warning::Cloudflare cache purge failed"
+
+    # Cloudflare caches per data center, with Tiered Cache this also fills the upper tier every region reads from
+    - name: Warm the Cloudflare cache
+      if: steps.purge.outputs.purged == 'true'
+      shell: bash
+      env:
+        OUTPUT: ${{ steps.build.outputs.output-dir }}
+        PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+      run: |
+        if [ ! -f "$OUTPUT/sitemap.xml" ]; then
+          echo "::notice::No sitemap.xml in $OUTPUT, the cache was not warmed"
+          exit 0
+        fi
+
+        # The sitemap holds base_url, which may be http while the site is served over https
+        site="https://${PAGE_URL#*://}"
+        list="$RUNNER_TEMP/warm-urls.txt"
+        {
+          grep -o '<loc>[^<]*</loc>' "$OUTPUT/sitemap.xml" | sed -e 's#</\{0,1\}loc>##g' -e 's#^http://#https://#'
+          # The stylesheets every page loads, linked with a cachebust query that is part of the cache key
+          grep -o 'href="\{0,1\}[^" >]*\.css[^" >]*' "$OUTPUT/index.html" | sed -e 's#^href="\{0,1\}##' -e 's#^http://#https://#'
+        } | grep -F "$site" | sort -u | head -500 > "$list"
+
+        echo "Warming $(wc -l < "$list") URLs under $site"
+        xargs -P 8 -n 1 curl -s -o /dev/null --max-time 20 -w '%{http_code}\n' < "$list" | sort | uniq -c
