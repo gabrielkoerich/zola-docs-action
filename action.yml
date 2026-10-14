@@ -204,12 +204,6 @@ runs:
         } | grep -F "${site%/}" | sort -u | head -500 > "$list"
 
         # Counts each status code, cache status and the Cloudflare data center that answered
-        fetch_all() {
-          xargs -P 8 -n 1 curl -s -o /dev/null --max-time 20 -w '%{http_code} %header{cf-cache-status} %header{cf-ray}\n' < "$list" \
-            | awk '{ n = split($3, ray, "-"); print $1, ($2 == "" ? "-" : $2), ray[n] }' | sort | uniq -c
-        }
-
         echo "Warming $(wc -l < "$list") URLs under $site"
-        fetch_all
-        echo "The same URLs again, a HIT means the data center kept them"
-        fetch_all
+        xargs -P 8 -n 1 curl -s -o /dev/null --max-time 20 -w '%{http_code} %header{cf-cache-status} %header{cf-ray}\n' < "$list" \
+          | awk '{ n = split($3, ray, "-"); print $1, ($2 == "" ? "-" : $2), ray[n] }' | sort | uniq -c
