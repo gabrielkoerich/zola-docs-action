@@ -40,6 +40,9 @@ inputs:
   cloudflare-zone:
     description: Cloudflare zone to purge, the default is gabrielkoerich.com
     default: "b4f279fbdc18c1d62d60751dcefbc03e"
+  indexnow-key:
+    description: IndexNow key, public by design. Ships as <key>.txt and announces the pages changed since the last deploy
+    default: ""
 
 outputs:
   output-dir:
@@ -121,6 +124,21 @@ runs:
           zola build "${args[@]}"
         fi
         echo "output-dir=$SITE/public" >> "$GITHUB_OUTPUT"
+
+    # IndexNow fetches <site>/<key>.txt to check that a submission comes from the site owner
+    - name: Add the IndexNow key file
+      if: inputs.indexnow-key != ''
+      shell: bash
+      env:
+        OUTPUT: ${{ steps.build.outputs.output-dir }}
+        KEY: ${{ inputs.indexnow-key }}
+      run: |
+        if [[ ! "$KEY" =~ ^[a-zA-Z0-9-]{8,128}$ ]]; then
+          echo "::error::indexnow-key must be 8 to 128 letters, digits or dashes"
+          exit 1
+        fi
+
+        printf '%s' "$KEY" > "$OUTPUT/$KEY.txt"
 
     - name: Upload Pages artifact
       if: inputs.upload == 'true'
@@ -207,3 +225,34 @@ runs:
         echo "Warming $(wc -l < "$list") URLs under $site"
         xargs -P 8 -n 1 curl -s -o /dev/null --max-time 20 -w '%{http_code} %header{cf-cache-status} %header{cf-ray}\n' < "$list" \
           | awk '{ n = split($3, ray, "-"); print $1, ($2 == "" ? "-" : $2), ray[n] }' | sort | uniq -c
+
+    - name: Restore the page list of the last IndexNow run
+      if: steps.deployment.outcome == 'success' && inputs.indexnow-key != ''
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.temp }}/indexnow-pages.json
+        key: zola-docs-indexnow-${{ github.run_id }}
+        restore-keys: zola-docs-indexnow-
+
+    # Only the pages that changed since the last deploy, the way IndexNow asks to be used
+    - name: Announce changed pages to IndexNow
+      id: indexnow
+      if: steps.deployment.outcome == 'success' && inputs.indexnow-key != ''
+      shell: bash
+      env:
+        OUTPUT: ${{ steps.build.outputs.output-dir }}
+        PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        KEY: ${{ inputs.indexnow-key }}
+        SCRIPT: ${{ github.action_path }}/scripts/indexnow.py
+      run: |
+        python3 "$SCRIPT" "$OUTPUT" "$RUNNER_TEMP/indexnow-pages.json" "$PAGE_URL" "$KEY" || echo "::warning::The IndexNow step failed"
+        if [ -f "$RUNNER_TEMP/indexnow-pages.json" ]; then
+          echo "saved=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Save the page list for the next IndexNow run
+      if: steps.indexnow.outputs.saved == 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ runner.temp }}/indexnow-pages.json
+        key: zola-docs-indexnow-${{ github.run_id }}-${{ github.run_attempt }}

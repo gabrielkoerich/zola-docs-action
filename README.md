@@ -63,6 +63,7 @@ Without `deploy`, the action only uploads the artifact, and a later job runs `ac
 | `deploy` | `false` | Deploy to GitHub Pages after the upload |
 | `cloudflare-token` | | Purge the Cloudflare cache after the deploy, from the `CF_API_TOKEN` secret |
 | `cloudflare-zone` | gabrielkoerich.com | Zone to purge |
+| `indexnow-key` | | Ship `<key>.txt` and announce the pages changed since the last deploy to IndexNow |
 
 Output `output-dir` holds the built site, and `page-url` the deployed URL.
 
@@ -171,6 +172,12 @@ The action is public, so it cannot hold the token, and a composite action only s
 ```bash
 gh secret set CF_API_TOKEN --repo owner/repo
 ```
+
+## Announce changes to IndexNow
+
+With `deploy` and `indexnow-key` set, the build writes `<key>.txt` at the site root and the action announces changed pages to IndexNow after the deploy. Bing, Yandex and the other IndexNow engines share one submission. The action hashes every `index.html`, compares the hashes with the list it kept from the last deploy in the Actions cache, and sends new, changed and deleted pages. The first deploy sends every page. Pages marked `noindex` are never sent. A failed submission warns and keeps the old list, so the next deploy sends the same pages again.
+
+The key is public by design, so it goes in the workflow as plain text. Any 8 to 128 letters, digits or dashes work, and one key can serve every site.
 
 ## A site from a README
 
