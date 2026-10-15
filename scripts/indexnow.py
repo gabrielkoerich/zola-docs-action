@@ -3,12 +3,13 @@
 Usage: indexnow.py <site dir> <manifest> <page url> <key>
 
 The manifest maps every page of the last deploy to its hash. Without one, every page goes out once.
-Pages marked noindex are left out. A failed submission only warns and keeps the old
+Pages marked noindex and alias redirects are left out. A failed submission only warns and keeps the old
 manifest, so the next deploy sends the same pages again.
 """
 
 import hashlib
 import json
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -23,8 +24,8 @@ def pages(root):
     out = {}
     for path in sorted(root.rglob("index.html")):
         html = path.read_bytes()
-        # A noindex page asks search engines to leave it out, so it is never announced
-        if b"noindex" in html[:4096]:
+        # A noindex page asks search engines to leave it out, and an alias only redirects to its page
+        if b"noindex" in html[:4096] or re.search(rb'http-equiv="?refresh', html[:4096]):
             continue
 
         out[path.relative_to(root).as_posix()] = hashlib.sha256(html).hexdigest()
